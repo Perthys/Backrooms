@@ -14,6 +14,11 @@ local WhitelistedToolNames = {
 local IgnoreList = {
 }
 
+local Default = {
+    ["KillSelf"] = true;
+    ["NotKillRandom"] = false;
+}
+
 local function DefineVariables()
     Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait();
     HumanoidRootPart = Character:WaitForChild("HumanoidRootPart");
@@ -31,7 +36,7 @@ end)
 local function GetRandomGun()
     local Guns = {}
     
-    for Index, Player in pairs(Players:GetPlayers()) do
+    for Index, Player in Players:GetPlayers() do
         local OtherCharacter = Player.Character
         
         if OtherCharacter then
@@ -65,28 +70,25 @@ end
 
 local function KillAll(Data)
     local DeathTable = {}
-    Data = Data or {
-        ["KillSelf"] = true;
-        ["NotKillRandom"] = false;
-    }
+    Data = Data or Default
     
     local ShouldKillSelf = Data["KillSelf"];
     local KillRandom = Data["NotKillRandom"];
     
-    for Index, Value in pairs(Players:GetPlayers()) do
-        if not ShouldKillSelf and Value == LocalPlayer then
+    for Index, Player in pairs(Players:GetPlayers()) do
+        if not ShouldKillSelf and Player == LocalPlayer then
             continue
         end
         
-        local Character = Value.Character;
+        local Character = Player.Character;
         
         if Character then
             local Head = Character:FindFirstChild("Head");
             
             if Head then
-                local ShouldBeIgnored = math.random(1,2)
+                local ShouldBeIgnored = (math.random(1,2) == 1 and KillRandom) or false 
                 
-                if ShouldBeIgnored == 1 and KillRandom then
+                if ShouldBeIgnored then
                     continue
                 end
                 
@@ -101,7 +103,7 @@ local function KillAll(Data)
     end
     
     if #DeathTable > 1 then
-        return Shoot:FireServer(DeathTable, Teams.SECURITY.HK416A5, Vector3.new(1/0,1/0,1/0), Vector3.new(-1/0,-1/0,-1/0), {})
+        return Shoot:FireServer(DeathTable, Teams.SECURITY.HK416A5, Vector3.new(0/0,0/0,0/0), Vector3.new(-0/0,-0/0,-0/0), {})
     end
 end
 
@@ -119,7 +121,7 @@ local function KillPlayer(Player, Damage)
                     Head;
                     -math.huge
                 }
-            }, Teams.SECURITY.HK416A5, Vector3.new(), Vector3.new(), {})
+            }, Teams.SECURITY.HK416A5, Vector3.zero, Vector3.zero, {})
         end
     end
 end
